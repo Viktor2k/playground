@@ -1,0 +1,7 @@
+torch
+sklearn
+pandas
+matplotlib
+sentence-transformers
+transformers==2.3.0
+flask
