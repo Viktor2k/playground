@@ -1,6 +1,0 @@
-torch
-sklearn
-pandas
-matplotlib
-sentence-transformers
-transformers
