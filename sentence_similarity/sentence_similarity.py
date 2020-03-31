@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 class SentenceSimilarity():
-    def __init__(self, dataset: Dataset, model: SentenceTransformer = None, n_docs: int = 1000):
+    def __init__(self, dataset: Dataset, model: SentenceTransformer = None, n_docs: int = -1):
         self.dataset = dataset
         self.model = model if model else SentenceTransformer("bert-base-nli-stsb-mean-tokens")
         
@@ -85,5 +85,5 @@ class SentenceSimilarity():
         sorted_doc_ids = [self.sentence_id_to_doc_id[sent_id] for sent_id in sorted_sentence_ids]
         
         logger.info(f"Distance for top documents: {[round(x[2],3) for x in sorted_x_y_dist[:limit]]}")
-        return list(dict.fromkeys(sorted_doc_ids).keys())[:limit]        
+        return self.dataset.get_documents_by_id(list(dict.fromkeys(sorted_doc_ids).keys())[:limit])
     #end def
