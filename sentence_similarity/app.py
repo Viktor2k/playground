@@ -13,10 +13,9 @@ app = Flask(__name__)
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-dataset = timer(Dataset, 'data/quora/train_for_similarity.txt')
-n = round(len(dataset)*0.1)
+dataset = timer(Dataset, 'data/quora/quora_example.txt')
 
-sentence_sim = timer(SentenceSimilarity, dataset=dataset, n_docs=n)
+sentence_sim = timer(SentenceSimilarity, dataset=dataset)
 
 @app.route('/')
 def home():
@@ -26,13 +25,12 @@ def home():
 @app.route('/search', methods=["GET", "POST"])
 def search_request():
     query = request.form["input"]
-    most_sim_doc_ids = sentence_sim.get_most_similar(query)
-    most_sim_docs = dataset.get_documents_by_id(most_sim_doc_ids)
+    most_sim_docs = sentence_sim.get_most_similar(query)
 
     hits = [{"body": doc} for doc in most_sim_docs]
     
     res = {}
-    res['total'] = len(most_sim_doc_ids)
+    res['total'] = len(most_sim_docs)
     res['hits'] = hits
 
     return render_template('results.html', res=res)
