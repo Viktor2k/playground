@@ -2,3 +2,5 @@ jupyter
 matplotlib
 pandas
 sklearn
+texthero
+sklearn-hierarchical-classification
