@@ -13,7 +13,7 @@ class Field(Base):
     name = Column(String)
     value = Column(String)
     document_id = Column(Integer, ForeignKey("document.id"))
-    document = relationship("Document", back_populates="fields")
+    document = relationship("Document", back_populates="doc_fields")
 
     def __str__(self):
         return f"Id:   {self.id}\nName:  {self.name}\nValue: {self.value}"
@@ -42,7 +42,7 @@ class Document(Base):
         cascade = "all, delete, delete-orphan"
     )
 
-    fields = relationship(
+    doc_fields = relationship(
         "Field",
         order_by = Field.name,
         back_populates = "document",
