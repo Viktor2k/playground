@@ -42,6 +42,19 @@ def read_docs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 def read_doc(doc_id: int, db: Session = Depends(get_db)):
     return document_dao.get_doc_from_id(db, doc_id)
 
+@app.post("/docs/{doc_id}/title", response_model=schemas.Document)
+def set_doc_title(doc_id: int, title: str, db: Session = Depends(get_db)):
+    return document_dao.set_title_for_document(db, doc_id, title)
+
+@app.post("/docs/{doc_id}/fields", response_model=schemas.Document)
+def set_doc_fields(doc_id: int, fields: List[schemas.FieldBase], db: Session = Depends(get_db)):
+    return document_dao.set_fields_for_document(db, doc_id, fields)
+
+@app.put("/docs/{doc_id}/fields", response_model=schemas.Document)
+def replace_doc_fields(doc_id: int, fields: List[schemas.FieldBase], db: Session = Depends(get_db)):
+    return document_dao.replace_fields_for_document(db, doc_id, fields)
+
+
 
 
 # def simple_main():

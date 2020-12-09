@@ -6,7 +6,7 @@ from typing import List
 class DocumentDAO:
 
     # Create    [x]
-    # Read      [ ]
+    # Read      [x]
     # Update    [ ]
     # Delete    [ ]
 
@@ -25,4 +25,36 @@ class DocumentDAO:
 
     def get_doc_from_id(self, db: Session, doc_id: int) -> schemas.Document: 
         return db.query(models.Document).get(doc_id)
+    
+    def set_title_for_document(self, db: Session, doc_id: int, title: str) -> schemas.Document:
+        db_doc = self.get_doc_from_id(db, doc_id)
+        db_doc.title = title
+        db.commit()
+        return db_doc
+
+    def set_fields_for_document(self, db: Session, doc_id: int, fields: List[schemas.FieldBase]) -> schemas.Document:
+        for f in fields: 
+            self.set_field_for_document(db, doc_id, f) 
+        
+        return self.get_doc_from_id(db, doc_id)
+    
+    def set_field_for_document(self, db: Session, doc_id: int, field: schemas.FieldBase) -> schemas.Field:
+        db_field = models.Field(**field.dict(), document_id=doc_id)
+        db.add(db_field)
+        db.commit()
+        db.refresh(db_field)
+        return db_field
+    
+    def replace_fields_for_document(self, db: Session, doc_id: int, fields: List[schemas.FieldBase]) -> schemas.Document:
+        self.delete_document_fields(db, doc_id)
+        return self.set_fields_for_document(db, doc_id, fields)
+    
+    def delete_document_fields(self, db: Session, doc_id: int):
+        db_doc = self.get_doc_from_id(db, doc_id)
+        db_fields = db_doc.doc_fields
+        for f in db_fields:
+            db.delete(f)
+        db.commit()
+
+        
     
