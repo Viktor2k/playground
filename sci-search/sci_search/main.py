@@ -54,7 +54,9 @@ def set_doc_fields(doc_id: int, fields: List[schemas.FieldBase], db: Session = D
 def replace_doc_fields(doc_id: int, fields: List[schemas.FieldBase], db: Session = Depends(get_db)):
     return document_dao.replace_fields_for_document(db, doc_id, fields)
 
-
+@app.delete("/docs/{doc_id}", response_model=schemas.Document)
+def delete_doc(doc_id: int, db: Session = Depends(get_db)):
+    return document_dao.delete_doc(db, doc_id)
 
 
 # def simple_main():
