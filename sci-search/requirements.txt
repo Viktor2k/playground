@@ -1,0 +1,24 @@
+# Api
+fastapi
+uvicorn
+async-exit-stack
+async-generator
+
+# Database
+sqlalchemy
+pydantic 
+
+# Linting
+pylint
+
+# Experimenting
+jupyter
+jupytext
+
+# Text extraction
+tika
+beautifulsoup4
+arxiv
+
+tqdm
+

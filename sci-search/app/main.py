@@ -8,10 +8,12 @@ from .models import Document, Page, Field
 from . import schemas
 
 from .dao.document_dao import DocumentDAO
+from .library.document_service import DocumentService
 Base.metadata.create_all(engine)
 
 app = FastAPI()
 document_dao = DocumentDAO()
+document_service = DocumentService()
 
 
 def get_db_return():
@@ -30,9 +32,13 @@ def get_db():
 
 
 
-@app.post("/docs/", response_model=schemas.Document)
+@app.post("/docs/raw", response_model=schemas.Document)
 def create_doc(doc: schemas.DocumentCreate, db: Session = Depends(get_db)):
     return document_dao.create_doc(db, doc)
+
+@app.post("/docs/path", response_model=schemas.Document)
+def create_doc_from_path(path: str, db: Session = Depends(get_db)):
+    return document_service.create_doc(db, path)
 
 @app.get("/docs/", response_model=List[schemas.Document])
 def read_docs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -65,6 +71,7 @@ def replace_doc_pages(doc_id: int, pages: List[schemas.PageBase], db: Session = 
 @app.delete("/docs/{doc_id}", response_model=schemas.Document)
 def delete_doc(doc_id: int, db: Session = Depends(get_db)):
     return document_dao.delete_doc(db, doc_id)
+
 
 
 # def simple_main():
