@@ -46,18 +46,21 @@ def set_default_time_units(date: datetime) -> datetime:
     return date.replace(**{"hour": 0, "minute": 0, "second": 0, "microsecond": 0})
 
 def download_documents(docs: List[dict], root_path: str):
-    for d in tqdm(docs, desc = f"Downloading {len(docs)} documents to path {os.path.abspath(root_path)}"):
-        arxiv.arxiv.download(d, get_storage_path(root_path, d), slugify=get_file_name)
-        d["file_path"] = f"{get_storage_path(root_path, d)}/{get_file_name(d)}"
+    abspath = os.path.abspath(root_path)
+    for d in tqdm(docs, desc = f"Downloading {len(docs)} documents to path {abspath}"):
+        arxiv.arxiv.download(d, get_storage_path(abspath, d), slugify=get_file_name)
+        d["file_path"] = os.path.join(get_storage_path(abspath, d), get_file_name(d)+".pdf")
 
-    with open(f"{root_path}/metadata.json", "a+") as metadata_file:
+    with open(os.path.join(abspath, "metadata.json"), "a+") as metadata_file:
         for d in docs:
             metadata_file.write(json.dumps(d) + "\n")
 
 
 def get_storage_path(root_path, doc: dict) -> str:
     date = parse_arxiv_date(doc[DOCUMENT_DATE_NAME])
-    dir_path = f'{root_path}/{prettify_date(date)}/'
+
+    dir_path = os.path.join(root_path, prettify_date(date))
+
     if not os.path.isdir(dir_path):
         Path(dir_path).mkdir(parents=True)
 

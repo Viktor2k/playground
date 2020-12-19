@@ -1,4 +1,6 @@
 from typing import List
+import json
+import os
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
@@ -9,6 +11,7 @@ from . import schemas
 
 from .dao.document_dao import DocumentDAO
 from .library.document_service import DocumentService
+from .library.arxiv_parser import parse_arxiv_metadata
 Base.metadata.create_all(engine)
 
 app = FastAPI()
@@ -39,6 +42,17 @@ def create_doc(doc: schemas.DocumentCreate, db: Session = Depends(get_db)):
 @app.post("/docs/path", response_model=schemas.Document)
 def create_doc_from_path(path: str, db: Session = Depends(get_db)):
     return document_service.create_doc(db, path)
+
+@app.post("/docs/folder", response_model=List[schemas.Document])
+def create_docs_from_arxiv_folder(folder_path: str, db: Session = Depends(get_db)):
+    documents = []
+    with open(os.path.join(folder_path, "metadata.json"), "r") as metadata_file:
+        for row in metadata_file:
+            document = parse_arxiv_metadata(json.loads(row))
+            documents.append(document_service.create_doc_with_fields(db, document["file_path"], document))
+
+    return documents
+
 
 @app.get("/docs/", response_model=List[schemas.Document])
 def read_docs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

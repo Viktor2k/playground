@@ -23,6 +23,13 @@ class DocumentService:
 
         return self.doc_dao.create_doc(db, doc)
 
+    def create_doc_with_fields(self, db: Session, path: str, metadata: dict) -> schemas.Document:
+        pages = self._parse_file_from_path(path)
+        fields = self._get_doc_fields_from_dict(metadata)
+        doc = schemas.DocumentCreate(title=self._get_file_name_from_path(path), pages=pages, doc_fields=fields)
+
+        return self.doc_dao.create_doc(db, doc)
+
     def _parse_file_from_path(self, path: str) -> List[schemas.PageBase]:
         pages = []
         data = parser.from_file(path, xmlContent=True)
@@ -40,3 +47,6 @@ class DocumentService:
 
     def _get_file_name_from_path(self, path: str) -> str:
         return os.path.basename(path)
+
+    def _get_doc_fields_from_dict(self, dictionary: dict) -> List[schemas.FieldBase]:
+        return [schemas.FieldBase(name = key, value = value) for key, value in dictionary.items() if type(key) == str and type(value) == str]
