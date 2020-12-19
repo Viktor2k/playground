@@ -43,10 +43,15 @@ def create_doc(doc: schemas.DocumentCreate, db: Session = Depends(get_db)):
 def create_doc_from_path(path: str, db: Session = Depends(get_db)):
     return document_service.create_doc(db, path)
 
-@app.post("/docs/folder", response_model=List[schemas.Document])
+@app.post("/docs/arxiv-folder", response_model=List[schemas.Document])
 def create_docs_from_arxiv_folder(folder_path: str, db: Session = Depends(get_db)):
     documents = []
-    with open(os.path.join(folder_path, "metadata.json"), "r") as metadata_file:
+
+    metadata_file_path = os.path.join(folder_path, "metadata.json")
+    if not os.path.isfile(metadata_file_path):
+        raise HTTPException(status_code = 404, detail = f"Could not find metadata.json file in selected folder '{os.path.abspath(folder_path)}'")
+
+    with open(metadata_file_path, "r") as metadata_file:
         for row in metadata_file:
             document = parse_arxiv_metadata(json.loads(row))
             documents.append(document_service.create_doc_with_fields(db, document["file_path"], document))
