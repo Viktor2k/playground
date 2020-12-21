@@ -62,32 +62,30 @@ class DocumentDAO:
         return db_page
     
     def replace_fields_for_document(self, db: Session, doc_id: int, fields: List[schemas.FieldBase]) -> schemas.Document:
-        self.delete_document_fields(db, doc_id)
+        self._delete_document_fields(db, doc_id)
         return self.set_fields_for_document(db, doc_id, fields)
     
     def replace_pages_for_document(self, db: Session, doc_id: int, pages: List[schemas.PageBase]):
-        self.delete_document_pages(db, doc_id)
+        self._delete_document_pages(db, doc_id)
         return self.set_pages_for_document(db, doc_id, pages)
 
-    def delete_document_fields(self, db: Session, doc_id: int):
+    def _delete_document_fields(self, db: Session, doc_id: int):
         db_fields = self.get_doc_from_id(db, doc_id).doc_fields
         for f in db_fields:
             db.delete(f)
         db.commit()
 
-    def delete_document_pages(self, db: Session, doc_id: int):
+    def _delete_document_pages(self, db: Session, doc_id: int):
         db_pages = self.get_doc_from_id(db, doc_id).pages
         for p in db_pages:
             db.delete(p)
         db.commit()
 
 
-    def delete_doc(self, db: Session, doc_id: int) -> schemas.Document:
+    def delete_doc(self, db: Session, doc_id: int):
         db_doc = self.get_doc_from_id(db, doc_id)
         db.delete(db_doc)
         db.commit()
-        
-        return db_doc
 
 
 

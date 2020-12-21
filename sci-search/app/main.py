@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 from .database import SessionLocal, Base, engine
 from .models import Document, Page, Field
 from . import schemas
+from .library import elasticsearch_service as elastic
 
 from .dao.document_dao import DocumentDAO
 from .library.document_service import DocumentService
-from .library.elasticsearch_service import index_document
 from .library.arxiv_parser import parse_arxiv_metadata
 
 Base.metadata.create_all(engine)
@@ -67,24 +67,14 @@ def create_docs_from_arxiv_folder(folder_path: str, db: Session = Depends(get_db
 
     return documents
 
+@app.post("/docs/reindex", response_model=List[int])
+def reindex_documents(db: Session = Depends(get_db)):
+    elastic.empty_index()
+    index_documents(db)
 
 @app.post("/docs/index", response_model=List[int])
 def index_documents(db: Session = Depends(get_db)):
-    start_idx = 0
-    doc_ids = []
-    while True:
-        print(start_idx)
-        docs = document_dao.get_docs(db=db, skip=start_idx, limit=100)
-        if not docs:
-            break
-        for doc in docs:
-            index_document(doc_id=doc.id, content=document_service.get_content_from_document(doc), title=doc.title)
-
-        start_idx += len(docs)
-        doc_ids.extend([doc.id for doc in docs])
-
-    return doc_ids
-
+    return document_service.index_all_documents(db)
 
 
 @app.get("/docs/", response_model=List[schemas.Document])
@@ -124,7 +114,8 @@ def replace_doc_pages(doc_id: int, pages: List[schemas.PageBase], db: Session = 
 
 @app.delete("/docs/{doc_id}", response_model=schemas.Document)
 def delete_doc(doc_id: int, db: Session = Depends(get_db)):
-    return document_dao.delete_doc(db, doc_id)
+    return document_service.delete_doc(db, doc_id)
+
 
 # def simple_main():
 #     db = get_db_return()
