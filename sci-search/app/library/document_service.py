@@ -1,5 +1,7 @@
 from ..dao.document_dao import DocumentDAO
-from .. import schemas, models
+from .. import schemas
+from .elasticsearch_service import index_document
+
 from typing import List
 from sqlalchemy.orm import Session
 import os
@@ -21,7 +23,10 @@ class DocumentService:
         pages = self._get_page_content_from_file_path(path)
         doc = schemas.DocumentCreate(title=self._get_file_name_from_path(path), pages=pages)
 
-        return self.doc_dao.create_doc(db, doc)
+        db_doc = self.doc_dao.create_doc(db, doc)
+        index_document(db_doc.id, self.get_content_from_document(db_doc), db_doc.title)
+
+        return db_doc
 
     def create_doc_with_fields(self, db: Session, path: str, metadata: dict) -> schemas.Document:
         pages = self._get_page_content_from_file_path(path)
@@ -50,3 +55,10 @@ class DocumentService:
 
     def _get_doc_fields_from_dict(self, dictionary: dict) -> List[schemas.FieldBase]:
         return [schemas.FieldBase(name = key, value = value) for key, value in dictionary.items() if type(key) == str and type(value) == str]
+
+    def get_content_from_document(self, doc: schemas.Document) -> str:
+        return "\n\n".join([page.content for page in doc.pages])
+
+    def get_field_values_by_name(self, doc: schemas.Document, field_name: str) -> List[str]:
+        return [field.value for field in doc.doc_fields if field.name.lower() == field_name.lower()]
+

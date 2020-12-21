@@ -30,6 +30,7 @@ class DocumentBase(BaseModel):
     doc_fields: List[Field] = [] 
     pages: List[Page] = []
 
+
 class DocumentCreate(DocumentBase):
     doc_fields: List[FieldBase] = [] 
     pages: List[PageBase] = []

@@ -86,6 +86,7 @@ class DocumentDAO:
         db_doc = self.get_doc_from_id(db, doc_id)
         db.delete(db_doc)
         db.commit()
+        
         return db_doc
 
 

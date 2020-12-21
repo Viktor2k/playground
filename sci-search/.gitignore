@@ -6,3 +6,5 @@ file-storage
 arxiv-files
 example_app
 notebooks
+
+elasticsearch/elasticsearch-7.10.1

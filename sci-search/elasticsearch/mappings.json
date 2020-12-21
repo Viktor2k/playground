@@ -1,0 +1,8 @@
+{
+  "mappings": {
+    "properties": {
+      "content": {"type": "text"},
+      "title": {"type": "text"}
+    }
+  }
+}
