@@ -1,0 +1,10 @@
+jupyter
+
+pandas
+scikit-learn
+texthero
+matplotlib
+tqdm
+timeit
+
+Django
