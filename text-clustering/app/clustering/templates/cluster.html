@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<ul class="list-group">
+    {% for c in clusters %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% for cont in c.content %}
+                {{cont}} <br />
+            {% endfor %}
+            <span class="badge badge-primary badge-pill">{{ c.count }}</span>
+        </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
